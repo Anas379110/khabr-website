@@ -1,0 +1,39 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { isPublished, sortByDateDesc } from '../lib/content';
+
+const allPosts = await getCollection('posts', isPublished);
+const sorted = sortByDateDesc(allPosts);
+
+// تجميع حسب السنة لعرض Timeline (FR3 — أرشيف زمني)
+const byYear = new Map<number, typeof sorted>();
+for (const post of sorted) {
+  const year = post.data.publishDate.getFullYear();
+  const arr = byYear.get(year) ?? [];
+  arr.push(post);
+  byYear.set(year, arr);
+}
+const years = [...byYear.keys()].sort((a, b) => b - a);
+---
+<BaseLayout title="الأرشيف الزمني">
+  <h1 class="text-2xl font-bold mb-6">الأرشيف الزمني للأحداث</h1>
+  {years.length === 0 ? (
+    <p class="text-neutral-500">لا يوجد محتوى بالأرشيف بعد.</p>
+  ) : (
+    years.map((year) => (
+      <section class="mb-8">
+        <h2 class="text-xl font-bold mb-3 border-b border-neutral-200 pb-2">{year}</h2>
+        <ul class="space-y-2">
+          {byYear.get(year)!.map((post) => (
+            <li>
+              <a href={`/post/${post.slug}`} class="text-brand hover:underline">
+                {new Intl.DateTimeFormat('ar', { dateStyle: 'medium' }).format(post.data.publishDate)} — {post.data.title}
+              </a>
+            </li>
+          ))}
+        </ul>
+      </section>
+    ))
+  )}
+</BaseLayout>

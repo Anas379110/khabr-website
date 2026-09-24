@@ -1,0 +1,24 @@
+---
+import { isSensitive } from '../lib/content';
+import type { CollectionEntry } from 'astro:content';
+
+export interface Props {
+  entry: CollectionEntry<'posts'>;
+}
+const { entry } = Astro.props;
+const { title, type, publishDate, excerpt, unverifiedSingleSource } = entry.data;
+const formattedDate = new Intl.DateTimeFormat('ar', { dateStyle: 'medium' }).format(publishDate);
+const sensitive = isSensitive(entry);
+---
+<a href={`/post/${entry.slug}`} class="block border border-neutral-200 rounded-lg p-4 hover:shadow-md transition-shadow bg-white">
+  <div class="flex items-center gap-2 flex-wrap">
+    <span class={`text-xs font-medium px-2 py-0.5 rounded ${type === 'خبر' ? 'bg-neutral-200 text-neutral-800' : 'bg-brand/10 text-brand'}`}>
+      {type}
+    </span>
+    {sensitive && <span class="text-xs bg-brand-alert/10 text-brand-alert px-2 py-0.5 rounded">قيد المراجعة</span>}
+    {unverifiedSingleSource && <span class="text-xs bg-amber-100 text-amber-800 px-2 py-0.5 rounded">مصدر واحد غير مؤكد</span>}
+  </div>
+  <h3 class="text-lg font-bold mt-2 mb-2">{title}</h3>
+  <p class="text-sm text-neutral-700 mb-2">{excerpt}</p>
+  <time datetime={publishDate.toISOString()} class="text-xs text-neutral-500">{formattedDate}</time>
+</a>

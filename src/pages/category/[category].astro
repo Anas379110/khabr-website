@@ -1,0 +1,25 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import PostCard from '../../components/PostCard.astro';
+import { isPublished, sortByDateDesc } from '../../lib/content';
+
+export async function getStaticPaths() {
+  const types = ['خبر', 'تحليل'];
+  return types.map((type) => ({ params: { category: type } }));
+}
+
+const { category } = Astro.params;
+const allPosts = await getCollection('posts', (e) => isPublished(e) && e.data.type === category);
+const sorted = sortByDateDesc(allPosts);
+---
+<BaseLayout title={category === 'خبر' ? 'الأخبار' : 'التحليلات'}>
+  <h1 class="text-2xl font-bold mb-6">{category === 'خبر' ? 'الأخبار' : 'التحليلات'}</h1>
+  {sorted.length === 0 ? (
+    <p class="text-neutral-500">لا يوجد محتوى بهذا التصنيف بعد.</p>
+  ) : (
+    <div class="grid gap-4 md:grid-cols-2">
+      {sorted.map((entry) => <PostCard entry={entry} />)}
+    </div>
+  )}
+</BaseLayout>

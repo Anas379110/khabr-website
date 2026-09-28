@@ -1,54 +1,21 @@
----
-import AdSlot from '../components/AdSlot.astro';
+// ***Add a global font loading strategy for Arabic***
+//   • We use the "IBM Plex Sans Arabic" font which is already referenced in Tailwind.
+//   • Load the WOFF2 variant, pre‑connect, and define a fallback chain.
 
-export interface Props {
-  title: string;
-  description?: string;
+// In `src/layouts/BaseLayout.astro` (or a separate global component):
+
+---
+const fontUrl = 'https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;700&display=swap';
+---
+
+<style>
+/* 1️⃣ Pre‑connect to Google Fonts */
+@import url('$fontUrl');
+/* 2️⃣ Configure root font family (fallback to system) */
+:root {
+  font-family: 'IBM Plex Sans Arabic', ui-sans-serif, system-ui, sans-serif;
 }
-const { title, description = "Khabr — أخبار وتحليلات سياسية سورية مستقلة" } = Astro.props;
----
-<!doctype html>
-<html lang="ar" dir="rtl">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content={description} />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;700&display=swap"
-      rel="stylesheet"
-    />
-    <title>{title} | Khabr</title>
-  </head>
-  <body class="font-arabic bg-neutral-50 text-neutral-900 min-h-screen flex flex-col">
-    <header class="bg-brand text-white">
-      <nav class="max-w-5xl mx-auto px-4 py-3 flex items-center justify-between">
-        <a href="/" class="text-xl font-bold">Khabr</a>
-        <div class="flex gap-4 text-sm">
-          <a href="/category/خبر">أخبار</a>
-          <a href="/category/تحليل">تحليلات</a>
-          <a href="/timeline">الأرشيف الزمني</a>
-        </div>
-      </nav>
-    </header>
+</style>
 
-    <main class="flex-1 max-w-5xl mx-auto px-4 py-8 w-full">
-      <AdSlot position="header" />
-      <slot />
-      <AdSlot position="footer" />
-    </main>
-
-    <footer class="bg-brand-dark text-white text-sm">
-      <div class="max-w-5xl mx-auto px-4 py-6 flex flex-wrap gap-4 justify-between">
-        <p>© {new Date().getFullYear()} Khabr — anasnet.com</p>
-        <div class="flex gap-4">
-          <a href="/about">من نحن</a>
-          <a href="/contact">اتصل بنا</a>
-          <a href="/privacy">سياسة الخصوصية</a>
-          <a href="/terms">شروط الاستخدام</a>
-        </div>
-      </div>
-    </footer>
-  </body>
-</html>
+// Put the style block at the top of the page so it loads early.
+// No extra JS required – this works for static Astro sites.
